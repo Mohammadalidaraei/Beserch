@@ -1,196 +1,151 @@
-# BSearch - موتور جستجوی ایرانی
+# BSearch - Iranian Search Engine
 
-یک موتور جستجوی مدرن مبتنی بر هوش مصنوعی مشابه Google با تمرکز بر وب فارسی و کاربران ایرانی.
+موتور جستجوی ایرانی با هوش مصنوعی
 
-## 🚀 تکنولوژی‌ها
+## تکنولوژی‌ها
 
-### Frontend
-- **JavaScript** خالص (بدون TypeScript)
-- Next.js 14
-- React 18
-- TailwindCSS
-- PWA Support
+- **Frontend**: JavaScript خالص (Next.js 14, React 18, TailwindCSS)
+- **Backend**: PHP 8.3 خالص (بدون فریم‌ورک)
+- **AI Service**: Python (FastAPI)
+- **Database**: PostgreSQL
+- **Cache**: Redis
+- **Search Engine**: OpenSearch
 
-### Backend
-- **PHP 8.3** خالص (بدون فریم‌ورک)
-- PostgreSQL
-- Redis
-- OpenSearch
-
-### AI Service
-- **Python** 3.11
-- FastAPI
-- PyTorch (برای مدل‌های پیشرفته)
-
-## 📦 ساختار پروژه
+## ساختار پروژه
 
 ```
-bsearch/
-├── frontend/          # Next.js frontend (JavaScript)
+/workspace
+├── frontend/          # فرانت‌اند Next.js
 │   ├── src/
 │   │   ├── components/
 │   │   ├── pages/
 │   │   ├── hooks/
-│   │   └── lib/
+│   │   ├── lib/
+│   │   └── styles/
 │   └── package.json
-├── backend/           # PHP 8.3 backend (Pure PHP)
-│   ├── public/
-│   │   ├── index.php
-│   │   ├── Database.php
-│   │   ├── SearchEngine.php
-│   │   ├── Crawler.php
-│   │   └── AIConnector.php
-│   ├── database/
-│   │   └── schema.sql
-│   └── Dockerfile
-├── ai_service/        # Python AI service
-│   ├── main.py
-│   ├── requirements.txt
-│   └── Dockerfile
-├── docker/
-│   └── nginx/
-│       └── nginx.conf
-├── docker-compose.yml
+├── backend/           # بک‌اند PHP خالص
+│   ├── controllers/
+│   │   ├── SearchController.php
+│   │   └── SeoController.php
+│   ├── config.php
+│   ├── Database.php
+│   ├── Router.php
+│   ├── Security.php
+│   ├── RedisClient.php
+│   ├── OpenSearchClient.php
+│   ├── AiClient.php
+│   ├── index.php
+│   └── schema.sql
+├── ai_service/        # سرویس هوش مصنوعی Python
+│   └── main.py
 └── README.md
 ```
 
-## 🔧 نصب و اجرا
+## نصب و راه‌اندازی
 
 ### پیش‌نیازها
-- Docker و Docker Compose
-- Node.js 18+ (برای توسعه frontend)
 
-### اجرای سریع با Docker
+- PHP 8.3+
+- Node.js 18+
+- Python 3.10+
+- PostgreSQL 15+
+- Redis 7+
+- OpenSearch 2+
 
-```bash
-# کلون کردن پروژه
-git clone <repository-url>
-cd bsearch
-
-# اجرای تمام سرویس‌ها
-docker-compose up -d
-
-# مشاهده لاگ‌ها
-docker-compose logs -f
-
-# توقف سرویس‌ها
-docker-compose down
-```
-
-### دسترسی به سرویس‌ها
-
-| سرویس | آدرس | توضیحات |
-|-------|------|---------|
-| Frontend | http://localhost:3000 | صفحه اصلی جستجو |
-| Backend API | http://localhost:8000 | API موتور جستجو |
-| AI Service | http://localhost:8001 | سرویس هوش مصنوعی |
-| PostgreSQL | localhost:5432 | پایگاه داده |
-| Redis | localhost:6379 | کش |
-| OpenSearch | localhost:9200 | ایندکس جستجو |
-
-## 📡 API Endpoints
-
-### جستجو
-```
-GET /api/search?q=جستجو&type=web&page=1
-```
-
-### ثبت سایت جدید
-```
-POST /api/submit
-{
-  "url": "https://example.com",
-  "sitemap": "https://example.com/sitemap.xml"
-}
-```
-
-### پاسخ هوش مصنوعی
-```
-POST /api/ai/answer
-{
-  "q": "سوال شما"
-}
-```
-
-### تحلیل سئو
-```
-POST /api/seo/analyze
-{
-  "url": "https://example.com"
-}
-```
-
-## 🎯 ویژگی‌ها
-
-### موتور جستجو
-- جستجوی وب، تصاویر، ویدیوها، اخبار
-- الگوریتم‌های BM25 و PageRank
-- جستجوی معنایی با هوش مصنوعی
-- پشتیبانی از فارسی، انگلیسی و عربی
-
-### هوش مصنوعی
-- تولید پاسخ خودکار
-- اصلاح املای فارسی
-- تشخیص نیت کاربر
-- استخراج موجودیت‌ها
-
-### ابزارهای وبمستر
-- ثبت سایت و نقشه سایت
-- تحلیل سئو خودکار
-- گزارش عملکرد جستجو
-- پیشنهاد اصلاحات
-
-### UI/UX
-- طراحی Responsive
-- حالت تاریک/روشن
-- پشتیبانی RTL
-- جستجوی صوتی
-- پیشنهادات خودکار
-
-## 🔐 امنیت
-
-- محافظت در برابر SQL Injection
-- محافظت در برابر XSS
-- محافظت در برابر CSRF
-- Rate Limiting
-- اعتبارسنجی ورودی‌ها
-
-## 📊 Performance Goals
-
-- LCP < 2s
-- FID < 100ms
-- Lighthouse Score > 95
-- Mobile First Design
-
-## 🛠 توسعه
-
-### اجرای Frontend در حالت توسعه
+### 1. راه‌اندازی پایگاه داده
 
 ```bash
-cd frontend
-npm install
-npm run dev
+# ایجاد پایگاه داده
+createdb bsearch_db
+
+# اجرای اسکیما
+psql -d bsearch_db -f backend/schema.sql
 ```
 
-### اجرای Backend به صورت مستقل
+### 2. راه‌اندازی Backend
 
 ```bash
-cd backend/public
+cd backend
+
+# ایجاد پوشه لاگ
+mkdir -p logs
+
+# تنظیم فایل config.php
+# ویرایش مقادیر database، redis، opensearch
+
+# شروع سرور PHP
 php -S localhost:8000
 ```
 
-### اجرای AI Service به صورت مستقل
+### 3. راه‌اندازی Frontend
+
+```bash
+cd frontend
+
+# نصب وابستگی‌ها
+npm install
+
+# شروع توسعه
+npm run dev
+```
+
+### 4. راه‌اندازی AI Service
 
 ```bash
 cd ai_service
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8001
+
+# نصب وابستگی‌ها
+pip install fastapi uvicorn transformers torch langchain
+
+# شروع سرویس
+uvicorn main:app --host 0.0.0.0 --port 8001
 ```
 
-## 📝 لایسنس
+## API Endpoints
 
-این پروژه تحت لایسنس MIT منتشر شده است.
+### جستجو
 
----
+- `GET /api/search?q=query` - جستجوی اصلی
+- `GET /api/search/suggest?q=query` - پیشنهادات جستجو
+- `GET /api/search/advanced` - جستجوی پیشرفته
 
-**BSearch** - ساخته شده با ❤️ برای جامعه فارسی‌زبان
+### سئو
+
+- `POST /api/seo/analyze` - تحلیل سئو صفحه
+- `POST /api/seo/generate` - تولید محتوای سئو
+- `POST /api/seo/titles` - پیشنهاد عنوان
+- `POST /api/seo/meta-description` - تولید متا دیسکریپشن
+- `POST /api/seo/schema` - تولید اسکیما
+
+### سلامت
+
+- `GET /api/health` - بررسی سلامت سیستم
+
+## ویژگی‌ها
+
+✅ جستجوی وب، تصاویر، ویدیوها، اخبار
+✅ پاسخ هوش مصنوعی (AI Answer)
+✅ تصحیح املایی فارسی
+✅ تشخیص نیت کاربر
+✅ تحلیلگر سئو خودکار
+✅ تولید محتوای سئو با AI
+✅ Dark/Light Mode
+✅ پشتیبانی کامل RTL
+✅ طراحی Responsive
+✅ Rate Limiting
+✅ کشینگ با Redis
+✅ امنیت کامل (CSRF, XSS, SQL Injection Protection)
+
+## پیکربندی
+
+فایل `backend/config.php` را برای تنظیم موارد زیر ویرایش کنید:
+
+- اطلاعات پایگاه داده
+- تنظیمات Redis
+- تنظیمات OpenSearch
+- URL سرویس AI
+- کلیدهای امنیتی
+
+## مجوز
+
+MIT License
