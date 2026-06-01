@@ -1,52 +1,115 @@
 ```
-# Dependencies
+# Laravel-specific ignores
+bootstrap/cache/
+storage/logs/
+storage/framework/
 vendor/
-node_modules/
+composer.lock
 
-# Environment variables
+# Environment
 .env
 .env.local
 .env.*
 
-# IDE files
+# Logs
+*.log
+
+# Editor/IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
 
-# Logs
-*.log
-
-# OS generated files
+# OS
 .DS_Store
 Thumbs.db
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Tests
+.coverage
+coverage/
+htmlcov/
 
 # Build artifacts
 dist/
 build/
 target/
-coverage/
-htmlcov/
-*.pyc
-__pycache__/
-*.class
-*.o
-*.obj
+*.out
 *.exe
 *.dll
 *.so
 *.a
-*.out
 
-# Testing
-.phpunit.result.cache
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
 .coverage
+.nox/
 .pytest_cache/
 .mypy_cache/
 
-# Composer/Packages
-composer.lock
+# Java
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+build/
+target/
 
-# Docker
-.dockerenv
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# C/C++
+*.o
+*.a
+*.obj
+*.out
+*.dll
+*.so
+*.dylib
+*.dSYM
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 ```
