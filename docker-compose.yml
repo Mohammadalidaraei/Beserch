@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: bsearch_postgres
+    environment:
+      POSTGRES_DB: bsearch
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - bsearch_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bsearch_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - bsearch_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # OpenSearch Search Engine
+  opensearch:
+    image: opensearchproject/opensearch:2.11.0
+    container_name: bsearch_opensearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
+      - plugins.security.disabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    networks:
+      - bsearch_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Laravel Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bsearch_backend
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: bsearch
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      OPENSEARCH_HOSTS: opensearch:9200
+      AI_SERVICE_URL: http://ai_service:8001
+    volumes:
+      - ./backend:/var/www/html
+      - ./backend/storage/app/public:/var/www/html/storage/app/public
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      opensearch:
+        condition: service_healthy
+    networks:
+      - bsearch_network
+    command: >
+      sh -c "php artisan migrate --force &&
+             php artisan optimize:clear &&
+             php artisan serve --host=0.0.0.0 --port=8000"
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bsearch_frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+      NEXT_PUBLIC_AI_SERVICE_URL: http://localhost:8001
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - bsearch_network
+    command: npm run dev
+
+  # Python AI Service
+  ai_service:
+    build:
+      context: ./ai_service
+      dockerfile: Dockerfile
+    container_name: bsearch_ai_service
+    environment:
+      PYTHONUNBUFFERED: 1
+      MODEL_PATH: /app/models
+    volumes:
+      - ./ai_service:/app
+      - ai_models:/app/models
+    ports:
+      - "8001:8001"
+    depends_on:
+      - opensearch
+    networks:
+      - bsearch_network
+    command: uvicorn app.api.main:app --host 0.0.0.0 --port 8001 --reload
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: bsearch_nginx
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./frontend/public:/var/www/public:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - bsearch_network
+
+networks:
+  bsearch_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  opensearch_data:
+  ai_models:
