@@ -1,50 +1,11 @@
 ```
-# Laravel-specific ignores
-bootstrap/cache/
-storage/logs/
-storage/framework/
-vendor/
-composer.lock
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Logs
-*.log
-
-# Editor/IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# OS
-.DS_Store
-Thumbs.db
-
 # Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Tests
-.coverage
-coverage/
-htmlcov/
-
-# Build artifacts
+# Build outputs
 dist/
 build/
 target/
-*.out
-*.exe
-*.dll
-*.so
-*.a
 
 # Python
 __pycache__/
@@ -55,39 +16,39 @@ __pycache__/
 env/
 venv/
 .venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
+.ENV
+.ENV.*
+.python-version
+
+# Logs
+*.log
+
+# Environment specific
+.env
+.env.local
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+htmlcov/
 .coverage
-.nox/
-.pytest_cache/
+
+# MyPy
 .mypy_cache/
 
-# Java
-*.class
-*.jar
-*.war
-*.ear
-.gradle/
-build/
-target/
-
-# Go
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-
-# C/C++
-*.o
-*.a
-*.obj
-*.out
-*.dll
-*.so
-*.dylib
-*.dSYM
+# PyTest
+.pytest_cache/
 
 # Compressed files
 *.zip
