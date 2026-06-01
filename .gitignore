@@ -1,27 +1,47 @@
 ```
 # Dependencies
+node_modules/
 vendor/
+
+# Build artifacts
+dist/
+build/
+target/
+
+# PHP
+*.php~
+*.php.bak
+*.log
 composer.lock
+
+# Node.js/Next.js
+.next/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Environment
 .env
 .env.local
 .env.*
+!.env.example
 
-# Logs
-*.log
-
-# IDE
+# Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Build artifacts
-node_modules/
-dist/
-build/
-target/
+# Logs
+*.log
+
+# Cache
+__pycache__/
+*.pyc
+*.pyo
+.Python
 ```
