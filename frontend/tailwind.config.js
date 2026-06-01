@@ -8,9 +8,6 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: {
-        sans: ['Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
-      },
       colors: {
         primary: {
           50: '#eff6ff',
@@ -27,14 +24,23 @@ module.exports = {
         dark: {
           bg: '#0f172a',
           card: '#1e293b',
-          border: '#334155',
+          border: '#334155'
         }
+      },
+      fontFamily: {
+        sans: ['Vazirmatn', 'system-ui', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'bounce-slow': 'bounce 2s infinite',
+        'fade-in': 'fadeIn 0.3s ease-in-out',
       },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        }
+      }
     },
   },
   plugins: [],
-};
+}

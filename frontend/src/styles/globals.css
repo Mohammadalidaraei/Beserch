@@ -4,46 +4,92 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 255, 255, 255;
-  --background-end-rgb: 255, 255, 255;
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #0f172a;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #2563eb;
+  }
+
+  .dark {
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --card: #1e293b;
+    --card-foreground: #f8fafc;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
+    --secondary: #1e293b;
+    --secondary-foreground: #f8fafc;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --accent: #1e293b;
+    --accent-foreground: #f8fafc;
+    --border: #334155;
+    --input: #334155;
+    --ring: #3b82f6;
+  }
 }
 
-.dark {
-  --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 15, 23, 42;
-  --background-end-rgb: 15, 23, 42;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    font-family: 'Vazirmatn', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    direction: rtl;
+  }
+  
+  html[dir="ltr"] body {
+    direction: ltr;
+  }
 }
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-  font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
-  min-height: 100vh;
-}
-
-[dir="rtl"] {
-  direction: rtl;
-}
-
-[dir="ltr"] {
-  direction: ltr;
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-medium 
+           hover:bg-primary/90 transition-colors duration-200 
+           focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground px-6 py-2.5 rounded-lg font-medium 
+           hover:bg-secondary/80 transition-colors duration-200 
+           border border-border;
+  }
+  
+  .input-search {
+    @apply w-full px-6 py-4 rounded-full border border-border 
+           bg-card text-foreground placeholder:text-muted-foreground
+           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
+           transition-all duration-200 shadow-sm hover:shadow-md;
+  }
+  
+  .card {
+    @apply bg-card border border-border rounded-xl p-6 shadow-sm 
+           hover:shadow-md transition-shadow duration-200;
+  }
+  
+  .search-result-item {
+    @apply p-4 rounded-lg hover:bg-muted transition-colors duration-200 
+           cursor-pointer border border-transparent hover:border-border;
+  }
 }
 
 /* Custom Scrollbar */
@@ -53,44 +99,41 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--muted-foreground);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--primary);
 }
 
-/* Search Box Animations */
-.search-box-focus {
-  @apply ring-2 ring-primary-500 shadow-lg;
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Loading Animation */
-.loading-spinner {
-  @apply animate-spin h-5 w-5 border-2 border-primary-500 border-t-transparent rounded-full;
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* Result Card Hover */
-.result-card {
-  @apply transition-all duration-200 hover:shadow-md;
+/* RTL Specific */
+[dir="rtl"] .rtl-space-x > * + * {
+  margin-right: theme('spacing.4');
+  margin-left: 0;
 }
 
-/* Voice Search Pulse */
-.voice-search-active {
-  @apply animate-pulse ring-4 ring-red-500/30;
-}
-
-/* Gradient Text */
-.gradient-text {
-  @apply bg-gradient-to-r from-primary-600 to-blue-400 bg-clip-text text-transparent;
+[dir="ltr"] .rtl-space-x > * + * {
+  margin-left: theme('spacing.4');
+  margin-right: 0;
 }

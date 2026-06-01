@@ -1,24 +1,17 @@
-import { FaExternalLinkAlt, FaStar } from 'react-icons/fa';
+export default function SearchResultItem({ result, type = 'web' }) {
+  const { title, url, description, snippet, date, domain, breadcrumbs } = result;
 
-export default function SearchResultItem({ result }) {
-  const {
-    title,
-    url,
-    description,
-    snippet,
-    date,
-    breadcrumbs,
-    richSnippets,
-    score,
-  } = result;
-
-  const displayUrl = url.replace(/^https?:\/\//, '').split('/')[0];
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fa-IR').format(date);
+  };
 
   return (
-    <div className="result-card bg-white dark:bg-dark-card rounded-xl p-4 md:p-6 mb-4 border border-gray-100 dark:border-dark-border hover:shadow-lg transition-all duration-200">
+    <div className="search-result-item bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 mb-4">
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2" dir="ltr">
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-1">
           {breadcrumbs.map((crumb, index) => (
             <span key={index} className="flex items-center gap-2">
               {index > 0 && <span>/</span>}
@@ -28,77 +21,63 @@ export default function SearchResultItem({ result }) {
         </div>
       )}
 
-      {/* Title & URL */}
-      <div className="mb-3">
-        <a 
-          href={url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="group block"
-        >
-          <h3 className="text-xl md:text-2xl text-primary-600 dark:text-primary-400 font-medium group-hover:underline line-clamp-2 mb-1">
-            {title || 'بدون عنوان'}
-          </h3>
-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-            <span className="truncate">{displayUrl}</span>
-            <FaExternalLinkAlt className="w-3 h-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </div>
-        </a>
-      </div>
-
-      {/* Description/Snippet */}
-      <p className="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-3 mb-3" dir="rtl">
-        {snippet || description || 'توضیحات موجود نیست'}
-      </p>
-
-      {/* Rich Snippets */}
-      {richSnippets && Object.keys(richSnippets).length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
-          {richSnippets.rating && (
-            <div className="flex items-center gap-1 text-yellow-500">
-              {[...Array(5)].map((_, i) => (
-                <FaStar 
-                  key={i} 
-                  className={`w-4 h-4 ${i < Math.floor(richSnippets.rating) ? 'fill-current' : 'text-gray-300 dark:text-gray-600'}`}
-                />
-              ))}
-              <span className="text-xs text-gray-500 mr-1">
-                ({richSnippets.rating})
+      {/* Domain & Date */}
+      <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400 mb-2">
+        {domain && (
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+              <span className="text-xs font-bold text-primary">
+                {domain.charAt(0).toUpperCase()}
               </span>
             </div>
-          )}
-          
-          {richSnippets.price && (
-            <span className="text-sm font-medium text-green-600 dark:text-green-400">
-              {richSnippets.price}
-            </span>
-          )}
-          
-          {richSnippets.availability && (
-            <span className={`
-              text-xs px-2 py-1 rounded-full
-              ${richSnippets.availability === 'InStock' 
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-              }
-            `}>
-              {richSnippets.availability === 'InStock' ? 'موجود' : 'ناموجود'}
-            </span>
+            <span>{domain}</span>
+          </div>
+        )}
+        {date && <span>•</span>}
+        {date && <time dateTime={date}>{formatDate(date)}</time>}
+      </div>
+
+      {/* Title */}
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block text-xl text-primary hover:underline font-medium mb-2"
+      >
+        {title || snippet?.substring(0, 100)}
+      </a>
+
+      {/* Description */}
+      <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+        {description || snippet}
+      </p>
+
+      {/* Rich Snippets for specific types */}
+      {type === 'video' && result.duration && (
+        <div className="mt-3 flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+          <span className="flex items-center gap-1">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {result.duration}
+          </span>
+          {result.views && (
+            <span>{new Intl.NumberFormat('fa-IR').format(result.views)} بازدید</span>
           )}
         </div>
       )}
 
-      {/* Date & Score */}
-      <div className="flex items-center justify-between text-xs text-gray-400">
-        {date && (
-          <span>{new Date(date).toLocaleDateString('fa-IR')}</span>
-        )}
-        {score && (
-          <span className="text-gray-300 dark:text-gray-600">
-            امتیاز: {(score * 100).toFixed(1)}%
-          </span>
-        )}
-      </div>
+      {type === 'image' && result.width && result.height && (
+        <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+          {result.width} × {result.height}
+        </div>
+      )}
+
+      {type === 'news' && result.source && (
+        <div className="mt-3 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+          <span className="font-medium">{result.source}</span>
+        </div>
+      )}
     </div>
   );
 }

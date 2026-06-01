@@ -1,26 +1,33 @@
-import { useState, useRef, useCallback } from 'react';
-import { FaMicrophone, FaMicrophoneSlash } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
 
-export function useVoiceSearch(onResult) {
+export function useVoiceSearch() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef(null);
+  const [error, setError] = useState(null);
+  const [isSupported, setIsSupported] = useState(false);
 
-  const startListening = useCallback(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('مرورگر شما از جستجوی صوتی پشتیبانی نمی‌کند.');
+  useEffect(() => {
+    // Check if browser supports Speech Recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    setIsSupported(!!SpeechRecognition);
+  }, []);
+
+  const startListening = (onResult) => {
+    if (!isSupported) {
+      setError('مرورگر شما از جستجوی صوتی پشتیبانی نمی‌کند');
       return;
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
 
+    recognition.lang = 'fa-IR';
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.lang = 'fa-IR';
 
     recognition.onstart = () => {
       setIsListening(true);
+      setError(null);
     };
 
     recognition.onresult = (event) => {
@@ -37,58 +44,62 @@ export function useVoiceSearch(onResult) {
       }
 
       setTranscript(finalTranscript || interimTranscript);
-
+      
       if (finalTranscript && onResult) {
         onResult(finalTranscript);
       }
     };
 
     recognition.onerror = (event) => {
-      console.error('Voice recognition error:', event.error);
-      setIsListening(false);
+      console.error('Speech recognition error:', event.error);
       
-      if (event.error === 'no-speech') {
-        setTranscript('هیچ صدایی تشخیص داده نشد. لطفاً دوباره تلاش کنید.');
-      } else if (event.error === 'audio-capture') {
-        setTranscript('دسترسی به میکروفون لازم است.');
+      switch (event.error) {
+        case 'no-speech':
+          setError('صدایی شناسایی نشد. لطفاً دوباره تلاش کنید.');
+          break;
+        case 'audio-capture':
+          setError('دسترسی به میکروفون یافت نشد.');
+          break;
+        case 'not-allowed':
+          setError('اجازه دسترسی به میکروفون داده نشده است.');
+          break;
+        default:
+          setError('خطایی در تشخیص صدا رخ داد.');
       }
+      
+      setIsListening(false);
     };
 
     recognition.onend = () => {
       setIsListening(false);
     };
 
-    recognitionRef.current = recognition;
     recognition.start();
-  }, [onResult]);
+  };
 
-  const stopListening = useCallback(() => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
+  const stopListening = () => {
+    if (isSupported) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.stop();
       setIsListening(false);
     }
-  }, []);
+  };
 
-  const toggleListening = useCallback(() => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  }, [isListening, startListening, stopListening]);
-
-  const clearTranscript = useCallback(() => {
+  const reset = () => {
     setTranscript('');
-  }, []);
+    setError(null);
+    setIsListening(false);
+  };
 
   return {
     isListening,
     transcript,
+    error,
+    isSupported,
     startListening,
     stopListening,
-    toggleListening,
-    clearTranscript,
-    isSupported: 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window,
+    reset,
   };
 }
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../utils/api';
+import api from '../lib/api';
 
 export function useSearch(initialQuery = '') {
   const [query, setQuery] = useState(initialQuery);
@@ -7,111 +7,81 @@ export function useSearch(initialQuery = '') {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
-  const [searchType, setSearchType] = useState('web'); // web, images, videos, news, ai
+  const [page, setPage] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
 
-  const debouncedSearch = useCallback(
-    debounce(async (searchQuery) => {
-      if (!searchQuery.trim()) {
-        setResults([]);
-        return;
+  const search = useCallback(async (searchQuery, searchType = 'web', pageNum = 1) => {
+    if (!searchQuery.trim()) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      let data;
+      
+      switch (searchType) {
+        case 'images':
+          data = await api.searchImages(searchQuery, { page: pageNum });
+          break;
+        case 'videos':
+          data = await api.searchVideos(searchQuery, { page: pageNum });
+          break;
+        case 'news':
+          data = await api.searchNews(searchQuery, { page: pageNum });
+          break;
+        case 'ai':
+          data = await api.aiSearch(searchQuery, { page: pageNum });
+          break;
+        default:
+          data = await api.search(searchQuery, { page: pageNum });
       }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        let data;
-        switch (searchType) {
-          case 'images':
-            data = await api.imageSearch(searchQuery);
-            break;
-          case 'videos':
-            data = await api.videoSearch(searchQuery);
-            break;
-          case 'news':
-            data = await api.newsSearch(searchQuery);
-            break;
-          case 'ai':
-            data = await api.aiSearch(searchQuery);
-            break;
-          default:
-            data = await api.search(searchQuery);
-        }
-        setResults(data.results || []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
-    [searchType]
-  );
-
-  useEffect(() => {
-    if (query) {
-      debouncedSearch(query);
+      
+      setResults(data.results || []);
+      setTotalResults(data.total || 0);
+      setPage(pageNum);
+    } catch (err) {
+      setError(err.message);
+      setResults([]);
+    } finally {
+      setLoading(false);
     }
-  }, [query, debouncedSearch]);
+  }, []);
 
-  const fetchSuggestions = useCallback(
-    debounce(async (searchQuery) => {
-      if (!searchQuery.trim()) {
-        setSuggestions([]);
-        return;
-      }
-
-      try {
-        const data = await api.getSuggestions(searchQuery);
-        setSuggestions(data.suggestions || []);
-      } catch (err) {
-        console.error('Failed to fetch suggestions:', err);
-      }
-    }, 200),
-    []
-  );
-
-  useEffect(() => {
-    if (query) {
-      fetchSuggestions(query);
-    } else {
+  const fetchSuggestions = useCallback(async (searchQuery) => {
+    if (!searchQuery.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    
+    try {
+      const data = await api.getSuggestions(searchQuery);
+      setSuggestions(data.suggestions || []);
+    } catch (err) {
+      console.error('Failed to fetch suggestions:', err);
       setSuggestions([]);
     }
-  }, [query, fetchSuggestions]);
+  }, []);
 
-  const handleSearch = (searchQuery) => {
-    setQuery(searchQuery);
-  };
-
-  const clearSearch = () => {
-    setQuery('');
+  const clearResults = () => {
     setResults([]);
-    setSuggestions([]);
+    setTotalResults(0);
+    setPage(1);
     setError(null);
   };
 
   return {
     query,
+    setQuery,
     results,
     loading,
     error,
     suggestions,
-    searchType,
-    setSearchType,
-    handleSearch,
-    clearSearch,
-    setQuery,
-  };
-}
-
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
+    page,
+    totalResults,
+    search,
+    fetchSuggestions,
+    clearResults,
+    setPage,
   };
 }
 

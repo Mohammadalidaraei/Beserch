@@ -6,13 +6,20 @@ export function useTheme() {
 
   useEffect(() => {
     setMounted(true);
-    const savedTheme = localStorage.getItem('theme') || 
-      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     
-    setTheme(savedTheme);
-    document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    document.documentElement.setAttribute('dir', 'rtl');
-    document.documentElement.setAttribute('lang', 'fa');
+    // Check localStorage first
+    const savedTheme = localStorage.getItem('theme');
+    
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const defaultTheme = prefersDark ? 'dark' : 'light';
+      setTheme(defaultTheme);
+      document.documentElement.classList.toggle('dark', prefersDark);
+    }
   }, []);
 
   const toggleTheme = () => {
@@ -22,15 +29,7 @@ export function useTheme() {
     document.documentElement.classList.toggle('dark', newTheme === 'dark');
   };
 
-  if (!mounted) {
-    return { theme: 'light', toggleTheme, isDark: false };
-  }
-
-  return {
-    theme,
-    toggleTheme,
-    isDark: theme === 'dark',
-  };
+  return { theme, toggleTheme, mounted };
 }
 
 export default useTheme;

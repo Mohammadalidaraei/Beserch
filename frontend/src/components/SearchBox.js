@@ -1,91 +1,87 @@
-import { useState, useEffect } from 'react';
-import { FaSearch, FaMicrophone, FaTimes, FaSparkles } from 'react-icons/fa';
-import { useVoiceSearch } from '../hooks/useVoiceSearch';
+import { useState } from 'react';
 
-export default function SearchBox({ 
-  onSearch, 
-  initialValue = '', 
-  placeholder = 'جستجو کنید...',
-  showAiButton = true,
-  onAiSearch,
-  size = 'large' // small, medium, large
-}) {
+export default function SearchBox({ onSearch, initialValue = '', placeholder = 'جستجو...', showButtons = true }) {
   const [query, setQuery] = useState(initialValue);
   const [isFocused, setIsFocused] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
-  
-  const handleVoiceResult = (result) => {
-    setQuery(result);
-    if (onSearch) {
-      onSearch(result);
-    }
-  };
-
-  const { 
-    isListening, 
-    toggleListening, 
-    isSupported: voiceSupported 
-  } = useVoiceSearch(handleVoiceResult);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim() && onSearch) {
+    if (query.trim()) {
       onSearch(query.trim());
+      setShowSuggestions(false);
     }
   };
 
-  const handleClear = () => {
-    setQuery('');
-    setSuggestions([]);
-    if (onSearch) {
-      onSearch('');
-    }
-  };
-
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const value = e.target.value;
     setQuery(value);
     
-    // Fetch suggestions (debounced in real app)
-    if (value.length > 2) {
-      // TODO: Implement debounced suggestion fetch
-      // For now, just clear suggestions
-      setSuggestions([]);
+    if (value.trim().length > 2) {
+      // Fetch suggestions (debounced in real app)
+      try {
+        const response = await fetch(`http://localhost:8000/api/search/suggestions?q=${encodeURIComponent(value)}`);
+        const data = await response.json();
+        setSuggestions(data.suggestions || []);
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error('Failed to fetch suggestions:', error);
+      }
     } else {
       setSuggestions([]);
+      setShowSuggestions(false);
     }
   };
 
   const handleSuggestionClick = (suggestion) => {
     setQuery(suggestion);
-    setSuggestions([]);
-    if (onSearch) {
-      onSearch(suggestion);
+    onSearch(suggestion);
+    setShowSuggestions(false);
+  };
+
+  const handleVoiceSearch = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      
+      recognition.lang = 'fa-IR';
+      recognition.start();
+      
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setQuery(transcript);
+        onSearch(transcript);
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Voice search error:', event.error);
+      };
+    } else {
+      alert('مرورگر شما از جستجوی صوتی پشتیبانی نمی‌کند');
     }
   };
 
-  const sizeClasses = {
-    small: 'h-10 px-3 text-sm',
-    medium: 'h-12 px-4 text-base',
-    large: 'h-16 px-6 text-lg md:h-20 md:px-8 md:text-xl'
-  };
-
   return (
-    <div className="relative w-full max-w-3xl mx-auto">
+    <div className="relative w-full max-w-2xl">
       <form onSubmit={handleSubmit} className="relative">
-        <div 
-          className={`
-            relative flex items-center bg-white dark:bg-dark-card 
-            border border-gray-200 dark:border-dark-border 
-            rounded-full shadow-sm transition-all duration-200
-            ${isFocused ? 'ring-2 ring-primary-500 shadow-lg' : ''}
-            ${sizeClasses[size]}
-          `}
-        >
+        <div className={`relative flex items-center transition-all duration-300 ${
+          isFocused ? 'shadow-lg' : 'shadow-md'
+        }`}>
           {/* Search Icon */}
-          <div className="flex-shrink-0 text-gray-400">
-            <FaSearch className="w-5 h-5 md:w-6 md:h-6" />
-          </div>
+          <svg
+            className="absolute right-4 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
 
           {/* Input Field */}
           <input
@@ -95,82 +91,88 @@ export default function SearchBox({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             placeholder={placeholder}
-            className="flex-1 mx-3 bg-transparent outline-none text-gray-800 dark:text-gray-100 placeholder-gray-400"
+            className="input-search pr-12 pl-12"
             dir="rtl"
           />
 
-          {/* Clear Button */}
-          {query && (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="flex-shrink-0 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-              aria-label="پاک کردن"
-            >
-              <FaTimes className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
-          )}
-
           {/* Voice Search Button */}
-          {voiceSupported && (
-            <button
-              type="button"
-              onClick={toggleListening}
-              className={`
-                flex-shrink-0 p-2 rounded-full transition-all duration-200
-                ${isListening 
-                  ? 'text-red-500 bg-red-50 dark:bg-red-900/20 animate-pulse' 
-                  : 'text-gray-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20'
-                }
-              `}
-              aria-label={isListening ? 'توقف جستجوی صوتی' : 'جستجوی صوتی'}
-              title={isListening ? 'در حال گوش دادن...' : 'جستجوی صوتی'}
+          <button
+            type="button"
+            onClick={handleVoiceSearch}
+            className="absolute left-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            title="جستجوی صوتی"
+          >
+            <svg
+              className="w-5 h-5 text-gray-500 dark:text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {isListening ? (
-                <FaMicrophoneSlash className="w-5 h-5 md:w-6 md:h-6" />
-              ) : (
-                <FaMicrophone className="w-5 h-5 md:w-6 md:h-6" />
-              )}
-            </button>
-          )}
-
-          {/* AI Search Button */}
-          {showAiButton && onAiSearch && (
-            <button
-              type="button"
-              onClick={() => onAiSearch(query)}
-              className="flex-shrink-0 p-2 mr-2 text-purple-500 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-full transition-all duration-200"
-              aria-label="جستجوی هوشمند با هوش مصنوعی"
-              title="جستجوی هوشمند با هوش مصنوعی"
-            >
-              <FaSparkles className="w-5 h-5 md:w-6 md:h-6" />
-            </button>
-          )}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+              />
+            </svg>
+          </button>
         </div>
+
+        {/* Suggestions Dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-fade-in">
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => handleSuggestionClick(suggestion)}
+                className="w-full px-6 py-3 text-right hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-3"
+              >
+                <svg
+                  className="w-4 h-4 text-gray-400 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <span className="text-gray-700 dark:text-gray-300">{suggestion}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </form>
 
-      {/* Suggestions Dropdown */}
-      {suggestions.length > 0 && isFocused && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-dark-card border border-gray-200 dark:border-dark-border rounded-xl shadow-lg overflow-hidden z-50">
-          {suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              onClick={() => handleSuggestionClick(suggestion)}
-              className="w-full px-4 py-3 text-right hover:bg-gray-50 dark:hover:bg-dark-border transition-colors flex items-center gap-3"
-            >
-              <FaSearch className="text-gray-400 text-sm" />
-              <span className="text-gray-700 dark:text-gray-200">{suggestion}</span>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Voice Listening Indicator */}
-      {isListening && (
-        <div className="absolute -bottom-8 left-0 right-0 text-center">
-          <span className="text-sm text-red-500 animate-pulse">
-            در حال گوش دادن... بگویید
-          </span>
+      {/* Action Buttons */}
+      {showButtons && (
+        <div className="flex justify-center gap-4 mt-8">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="btn-primary"
+          >
+            جستجوی BSearch
+          </button>
+          <button
+            type="button"
+            onClick={() => onSearch(query + ' AI')}
+            className="btn-secondary flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+            جستجوی هوشمند
+          </button>
         </div>
       )}
     </div>
