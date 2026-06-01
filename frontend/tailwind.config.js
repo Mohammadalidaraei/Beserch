@@ -1,12 +1,14 @@
 module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/pages/**/*.{js,jsx}',
+    './src/components/**/*.{js,jsx}',
   ],
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Vazirmatn', 'Tahoma', 'Arial', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#eff6ff',
@@ -21,19 +23,15 @@ module.exports = {
           900: '#1e3a8a',
         },
         dark: {
-          bg: '#0f0f0f',
-          surface: '#1a1a1a',
-          border: '#2a2a2a',
+          bg: '#0f172a',
+          card: '#1e293b',
+          border: '#334155',
         },
-      },
-      fontFamily: {
-        sans: ['Vazirmatn', 'system-ui', 'sans-serif'],
-        heading: ['Vazirmatn', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-up': 'slideUp 0.4s ease-out',
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-slow': 'pulse 3s infinite',
       },
       keyframes: {
         fadeIn: {
