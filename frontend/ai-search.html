@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جستجوی هوشمند AI - BSearch</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .ai-page {
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        
+        .ai-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .ai-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .ai-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-section {
+            margin-bottom: 2rem;
+        }
+        
+        .ai-answer-box {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .ai-answer-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            color: var(--primary-blue);
+            font-weight: bold;
+        }
+        
+        .ai-answer-content {
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+        
+        .ai-sources {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .sources-title {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        
+        .source-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+        
+        .source-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        
+        .source-item:hover {
+            box-shadow: var(--shadow);
+        }
+        
+        .source-favicon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+        
+        .source-info {
+            flex: 1;
+        }
+        
+        .source-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .source-url {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading-ai {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .ai-thinking {
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .related-questions {
+            margin-top: 2rem;
+        }
+        
+        .related-title {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .question-item {
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .question-item:hover {
+            background: var(--bg-hover);
+        }
+    </style>
+</head>
+<body class="light-mode ai-page">
+    <div class="ai-container">
+        <header class="ai-header">
+            <div class="ai-logo">🤖</div>
+            <h1>جستجوی هوشمند با هوش مصنوعی</h1>
+            <p style="color: var(--text-secondary);">سوال خود را بپرسید، پاسخ هوشمند دریافت کنید</p>
+        </header>
+
+        <div class="search-section">
+            <form class="search-form" id="searchForm">
+                <div class="search-box-wrapper">
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        id="searchInput"
+                        name="q"
+                        placeholder="سوال خود را وارد کنید..."
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="btn btn-primary">پرسش</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="aiResult">
+            <!-- AI answer will be rendered here -->
+        </div>
+
+        <div class="related-questions" id="relatedQuestions" style="display: none;">
+            <h3 class="related-title">سوالات مرتبط</h3>
+            <div class="question-list" id="questionList"></div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const query = Utils.getParam('q');
+            
+            if (query) {
+                document.getElementById('searchInput').value = query;
+                performAISearch(query);
+            }
+
+            document.getElementById('searchForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const input = document.getElementById('searchInput');
+                const q = input.value.trim();
+                if (q) {
+                    window.location.href = `ai-search.html?q=${encodeURIComponent(q)}`;
+                }
+            });
+        });
+
+        async function performAISearch(query) {
+            const resultDiv = document.getElementById('aiResult');
+            
+            // Show loading state
+            resultDiv.innerHTML = `
+                <div class="loading-ai">
+                    <div class="spinner"></div>
+                    <p class="ai-thinking">در حال تحلیل و جستجو...</p>
+                </div>
+            `;
+
+            try {
+                // Call AI service
+                const data = await API.aiSearch(query);
+                renderAIResult(data);
+            } catch (error) {
+                console.error('AI Search failed:', error);
+                resultDiv.innerHTML = `
+                    <div class="ai-answer-box">
+                        <p style="color: var(--primary-red);">خطا در دریافت پاسخ هوشمند</p>
+                        <a href="search.html?q=${encodeURIComponent(query)}" class="btn btn-primary" style="margin-top: 1rem; display: inline-block;">
+                            جستجوی معمولی
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        function renderAIResult(data) {
+            const resultDiv = document.getElementById('aiResult');
+            const relatedDiv = document.getElementById('relatedQuestions');
+            
+            const html = `
+                <div class="ai-answer-box">
+                    <div class="ai-answer-title">
+                        <span>✨</span>
+                        <span>پاسخ هوشمند</span>
+                    </div>
+                    <div class="ai-answer-content">
+                        ${data.answer || 'پاسخی یافت نشد.'}
+                    </div>
+                    
+                    ${data.sources && data.sources.length > 0 ? `
+                        <div class="ai-sources">
+                            <h4 class="sources-title">منابع استفاده‌شده:</h4>
+                            <div class="source-list">
+                                ${data.sources.map(source => `
+                                    <a href="${source.url}" target="_blank" class="source-item">
+                                        <img src="${source.favicon || '/favicon.png'}" alt="" class="source-favicon" onerror="this.style.display='none'">
+                                        <div class="source-info">
+                                            <div class="source-title">${escapeHtml(source.title)}</div>
+                                            <div class="source-url">${escapeHtml(source.domain)}</div>
+                                        </div>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            resultDiv.innerHTML = html;
+            
+            // Show related questions
+            if (data.related && data.related.length > 0) {
+                const questionList = document.getElementById('questionList');
+                questionList.innerHTML = data.related.map(q => `
+                    <div class="question-item" onclick="window.location.href='ai-search.html?q=${encodeURIComponent(q)}'">
+                        <span>❓</span>
+                        <span>${escapeHtml(q)}</span>
+                    </div>
+                `).join('');
+                
+                relatedDiv.style.display = 'block';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

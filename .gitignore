@@ -1,31 +1,27 @@
 ```
 # Dependencies
-node_modules/
+vendor/
+composer.lock
 
-# Build outputs
-dist/
-build/
-.next/
-
-# Environment variables
+# Environment
 .env
 .env.local
 .env.*
 
-# IDE specific
-.vscode/
-.idea/
-
-# Python cache (if present in project)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
 # Logs
 *.log
 
-# OS generated files
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Build artifacts
+node_modules/
+dist/
+build/
+target/
 ```
