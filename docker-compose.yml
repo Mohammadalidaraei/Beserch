@@ -4,139 +4,110 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: bsearch_postgres
+    container_name: bsearch-postgres
     environment:
       POSTGRES_DB: bsearch
       POSTGRES_USER: bsearch
-      POSTGRES_PASSWORD: bsearch_password
+      POSTGRES_PASSWORD: bsearch_secret
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     ports:
       - "5432:5432"
     networks:
-      - bsearch_network
+      - bsearch-network
     restart: unless-stopped
 
   # Redis Cache
   redis:
     image: redis:7-alpine
-    container_name: bsearch_redis
-    command: redis-server --requirepass bsearch_redis_password
-    volumes:
-      - redis_data:/data
+    container_name: bsearch-redis
     ports:
       - "6379:6379"
     networks:
-      - bsearch_network
+      - bsearch-network
     restart: unless-stopped
 
-  # OpenSearch (Elasticsearch Compatible)
+  # OpenSearch
   opensearch:
     image: opensearchproject/opensearch:2.11.0
-    container_name: bsearch_opensearch
+    container_name: bsearch-opensearch
     environment:
-      - discovery.type=single-node
-      - plugins.security.disabled=true
-      - OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m
-    volumes:
-      - opensearch_data:/usr/share/opensearch/data
+      discovery.type: single-node
+      OPENSEARCH_INITIAL_ADMIN_PASSWORD: admin_password
+      plugins.security.disabled: "true"
     ports:
       - "9200:9200"
       - "9600:9600"
+    volumes:
+      - opensearch_data:/usr/share/opensearch/data
     networks:
-      - bsearch_network
+      - bsearch-network
     restart: unless-stopped
 
-  # Backend (PHP 8.3 + Nginx)
-  backend:
+  # PHP Backend
+  php-backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: bsearch_backend
+    container_name: bsearch-backend
+    working_dir: /var/www/html
     volumes:
-      - ./backend:/var/www/html
-    ports:
-      - "8000:80"
+      - ./backend/public:/var/www/html
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: bsearch
+      DB_USER: bsearch
+      DB_PASS: bsearch_secret
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      OPENSEARCH_HOST: opensearch
+      OPENSEARCH_PORT: 9200
+      AI_SERVICE_URL: http://ai-service:8001
     depends_on:
       - postgres
       - redis
       - opensearch
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_DATABASE=bsearch
-      - DB_USERNAME=bsearch
-      - DB_PASSWORD=bsearch_password
-      - REDIS_HOST=redis
-      - REDIS_PASSWORD=bsearch_redis_password
-      - OPENSEARCH_HOST=opensearch
-      - OPENSEARCH_PORT=9200
+    ports:
+      - "8000:80"
     networks:
-      - bsearch_network
+      - bsearch-network
     restart: unless-stopped
 
-  # AI Service (Python FastAPI)
-  ai_service:
+  # Python AI Service
+  ai-service:
     build:
       context: ./ai_service
       dockerfile: Dockerfile
-    container_name: bsearch_ai
-    volumes:
-      - ./ai_service:/app
+    container_name: bsearch-ai
     ports:
-      - "8001:8000"
-    depends_on:
-      - opensearch
-    environment:
-      - OPENSEARCH_HOST=opensearch
-      - OPENSEARCH_PORT=9200
-      - MODEL_NAME=bert-base-multilingual-cased
+      - "8001:8001"
     networks:
-      - bsearch_network
-    restart: unless-stopped
-
-  # Frontend (Next.js)
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: bsearch_frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
-      - NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8001
-    networks:
-      - bsearch_network
+      - bsearch-network
     restart: unless-stopped
 
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
-    container_name: bsearch_nginx
+    container_name: bsearch-nginx
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/out:/usr/share/nginx/html
     ports:
       - "80:80"
       - "443:443"
     depends_on:
-      - frontend
-      - backend
-      - ai_service
+      - php-backend
+      - ai-service
     networks:
-      - bsearch_network
+      - bsearch-network
     restart: unless-stopped
 
 volumes:
   postgres_data:
-  redis_data:
   opensearch_data:
 
 networks:
-  bsearch_network:
+  bsearch-network:
     driver: bridge

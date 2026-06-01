@@ -1,133 +1,73 @@
-# BSearch - موتور جستجوی هوشمند ایرانی
+# BSearch - موتور جستجوی ایرانی
 
-یک موتور جستجوی مدرن و پیشرفته با قابلیت‌های هوش مصنوعی، مشابه Google، با تمرکز بر وب فارسی و کاربران ایرانی.
+یک موتور جستجوی مدرن مبتنی بر هوش مصنوعی مشابه Google با تمرکز بر وب فارسی و کاربران ایرانی.
 
-## ویژگی‌ها
-
-### 🔍 موتور جستجو
-- جستجوی وب (Web Search)
-- جستجوی تصاویر (Image Search)
-- جستجوی ویدیوها (Video Search)
-- جستجوی اخبار (News Search)
-- پاسخ هوش مصنوعی (AI Answer Search)
-
-### 🎨 رابط کاربری
-- طراحی مدرن مشابه Google
-- کاملاً Responsive (موبایل، تبلت، دسکتاپ)
-- حالت تاریک/روشن (Dark/Light Mode)
-- پشتیبانی کامل از RTL برای فارسی
-- چندزبانه (فارسی، انگلیسی، عربی)
-
-### 🤖 هوش مصنوعی
-- تولید پاسخ خودکار به سوالات
-- تحلیل معنایی (Semantic Search)
-- تشخیص نیت کاربر (Intent Detection)
-- تصحیح املایی (Spell Correction)
-- شناسایی موجودیت‌ها (Entity Recognition)
-
-### 🛠 ابزارهای سئو
-- تحلیلگر سئو صفحات وب
-- پیشنهادات اصلاح خودکار
-- تولید متا تگ‌ها توسط AI
-- بررسی Core Web Vitals
-
-### 📊 پنل وبمستر
-- آمار عملکرد جستجو
-- صفحات ایندکس‌شده
-- خطاهای Crawl
-- وضعیت Sitemap
-- رتبه‌بندی کلمات کلیدی
-
-## تکنولوژی‌ها
+## 🚀 تکنولوژی‌ها
 
 ### Frontend
-- **JavaScript** (ES6+)
-- **Next.js 14** - React Framework
-- **React 18** - UI Library
-- **TailwindCSS** - Styling
-- **PWA** - Progressive Web App
+- **JavaScript** خالص (بدون TypeScript)
+- Next.js 14
+- React 18
+- TailwindCSS
+- PWA Support
 
 ### Backend
-- **PHP 8.3** - زبان اصلی بک‌اند
-- **Native PHP** - بدون فریم‌ورک
-- **PDO** - اتصال به دیتابیس
-- **REST API** - API استاندارد
+- **PHP 8.3** خالص (بدون فریم‌ورک)
+- PostgreSQL
+- Redis
+- OpenSearch
 
 ### AI Service
-- **Python** - زبان سرویس هوش مصنوعی
-- **FastAPI** - فریم‌ورک API
-- **Transformers** - مدل‌های NLP
-- **PyTorch** - یادگیری عمیق
+- **Python** 3.11
+- FastAPI
+- PyTorch (برای مدل‌های پیشرفته)
 
-### Search Engine
-- **OpenSearch** - موتور جستجو (Elasticsearch Compatible)
-
-### Databases
-- **PostgreSQL** - دیتابیس اصلی
-- **Redis** - کش و صف
-
-### Infrastructure
-- **Docker** - کانتینری‌سازی
-- **Nginx** - Reverse Proxy
-- **CDN Support** - پشتیبانی از CDN
-
-## ساختار پروژه
+## 📦 ساختار پروژه
 
 ```
 bsearch/
-├── frontend/          # Next.js Frontend
+├── frontend/          # Next.js frontend (JavaScript)
 │   ├── src/
-│   │   ├── components/    # کامپوننت‌های React
-│   │   ├── pages/         # صفحات Next.js
-│   │   ├── hooks/         # Custom Hooks
-│   │   ├── styles/        # استایل‌ها
-│   │   └── lib/           # کتابخانه‌ها
-│   ├── package.json
-│   └── next.config.js
-│
-├── backend/           # PHP Backend
-│   ├── src/
-│   │   ├── controllers/   # کنترلرها
-│   │   ├── models/        # مدل‌ها
-│   │   ├── services/      # سرویس‌ها
-│   │   ├── config/        # تنظیمات
-│   │   └── routes/        # مسیرها
-│   └── public/
-│
-├── ai_service/        # Python AI Service
-│   ├── src/
-│   │   ├── main.py        # نقطه ورود
-│   │   ├── search.py      # جستجوی معنایی
-│   │   └── generator.py   # تولید محتوا
-│   └── models/
-│
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── hooks/
+│   │   └── lib/
+│   └── package.json
+├── backend/           # PHP 8.3 backend (Pure PHP)
+│   ├── public/
+│   │   ├── index.php
+│   │   ├── Database.php
+│   │   ├── SearchEngine.php
+│   │   ├── Crawler.php
+│   │   └── AIConnector.php
+│   ├── database/
+│   │   └── schema.sql
+│   └── Dockerfile
+├── ai_service/        # Python AI service
+│   ├── main.py
+│   ├── requirements.txt
+│   └── Dockerfile
 ├── docker/
 │   └── nginx/
 │       └── nginx.conf
-│
 ├── docker-compose.yml
-└── docs/
-    ├── architecture.md
-    ├── api.md
-    └── deployment.md
+└── README.md
 ```
 
-## نصب و راه‌اندازی
+## 🔧 نصب و اجرا
 
 ### پیش‌نیازها
 - Docker و Docker Compose
-- Node.js 18+ (برای توسعه Frontend)
-- PHP 8.3+ (برای توسعه Backend)
-- Python 3.10+ (برای توسعه AI Service)
+- Node.js 18+ (برای توسعه frontend)
 
-### راه‌اندازی سریع با Docker
+### اجرای سریع با Docker
 
 ```bash
 # کلون کردن پروژه
-git clone https://github.com/bsearch/bsearch.git
+git clone <repository-url>
 cd bsearch
 
-# اجرای سرویس‌ها
+# اجرای تمام سرویس‌ها
 docker-compose up -d
 
 # مشاهده لاگ‌ها
@@ -139,59 +79,40 @@ docker-compose down
 
 ### دسترسی به سرویس‌ها
 
-| سرویس | آدرس | پورت |
-|-------|------|------|
-| Frontend | http://localhost:3000 | 3000 |
-| Backend API | http://localhost:8000 | 8000 |
-| AI Service | http://localhost:8001 | 8001 |
-| PostgreSQL | localhost | 5432 |
-| Redis | localhost | 6379 |
-| OpenSearch | http://localhost:9200 | 9200 |
+| سرویس | آدرس | توضیحات |
+|-------|------|---------|
+| Frontend | http://localhost:3000 | صفحه اصلی جستجو |
+| Backend API | http://localhost:8000 | API موتور جستجو |
+| AI Service | http://localhost:8001 | سرویس هوش مصنوعی |
+| PostgreSQL | localhost:5432 | پایگاه داده |
+| Redis | localhost:6379 | کش |
+| OpenSearch | localhost:9200 | ایندکس جستجو |
 
-### توسعه محلی
+## 📡 API Endpoints
 
-#### Frontend
-```bash
-cd frontend
-npm install
-npm run dev
+### جستجو
+```
+GET /api/search?q=جستجو&type=web&page=1
 ```
 
-#### Backend
-```bash
-cd backend
-# تنظیم فایل .env
-cp .env.example .env
-# اجرای سرور داخلی PHP
-php -S localhost:8000 -t public
+### ثبت سایت جدید
+```
+POST /api/submit
+{
+  "url": "https://example.com",
+  "sitemap": "https://example.com/sitemap.xml"
+}
 ```
 
-#### AI Service
-```bash
-cd ai_service
-python -m venv venv
-source venv/bin/activate  # یا venv\Scripts\activate در ویندوز
-pip install -r requirements.txt
-uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
+### پاسخ هوش مصنوعی
+```
+POST /api/ai/answer
+{
+  "q": "سوال شما"
+}
 ```
 
-## API Documentation
-
-مستندات کامل API در فایل [docs/api.md](docs/api.md) موجود است.
-
-### Endpointهای اصلی
-
-#### جستجو
-```
-GET /api/search?q=query&type=web|images|videos|news&page=1
-```
-
-#### جستجوی هوش مصنوعی
-```
-GET /api/ai/search?q=question
-```
-
-#### تحلیل سئو
+### تحلیل سئو
 ```
 POST /api/seo/analyze
 {
@@ -199,55 +120,77 @@ POST /api/seo/analyze
 }
 ```
 
-#### ثبت سایت
-```
-POST /api/webmaster/submit
-{
-  "website_url": "https://example.com",
-  "sitemap_url": "https://example.com/sitemap.xml",
-  "email": "user@example.com"
-}
-```
+## 🎯 ویژگی‌ها
 
-## امنیت
+### موتور جستجو
+- جستجوی وب، تصاویر، ویدیوها، اخبار
+- الگوریتم‌های BM25 و PageRank
+- جستجوی معنایی با هوش مصنوعی
+- پشتیبانی از فارسی، انگلیسی و عربی
 
-- محافظت در برابر CSRF
-- محافظت در برابر XSS
+### هوش مصنوعی
+- تولید پاسخ خودکار
+- اصلاح املای فارسی
+- تشخیص نیت کاربر
+- استخراج موجودیت‌ها
+
+### ابزارهای وبمستر
+- ثبت سایت و نقشه سایت
+- تحلیل سئو خودکار
+- گزارش عملکرد جستجو
+- پیشنهاد اصلاحات
+
+### UI/UX
+- طراحی Responsive
+- حالت تاریک/روشن
+- پشتیبانی RTL
+- جستجوی صوتی
+- پیشنهادات خودکار
+
+## 🔐 امنیت
+
 - محافظت در برابر SQL Injection
+- محافظت در برابر XSS
+- محافظت در برابر CSRF
 - Rate Limiting
-- WAF Support
-- DDoS Protection
+- اعتبارسنجی ورودی‌ها
 
-## Performance Goals
+## 📊 Performance Goals
 
-- Largest Contentful Paint < 2s
-- First Input Delay < 100ms
+- LCP < 2s
+- FID < 100ms
 - Lighthouse Score > 95
 - Mobile First Design
 
-## نقشه راه آینده
+## 🛠 توسعه
 
-- [ ] سرویس نقشه (Map Service)
-- [ ] سرویس ایمیل (Email Service)
-- [ ] فضای ابری (Cloud Storage)
-- [ ] چت هوش مصنوعی (AI Chat)
-- [ ] مرورگر (Browser)
-- [ ] سرویس ترجمه (Translation Service)
-- [ ] جستجوی خرید (Shopping Search)
-- [ ] دایرکتوری کسب‌وکار (Business Directory)
-- [ ] جستجوی شغل (Job Search)
-- [ ] جستجوی علمی (Academic Search)
+### اجرای Frontend در حالت توسعه
 
-## مجوز
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-این پروژه تحت مجوز MIT منتشر شده است.
+### اجرای Backend به صورت مستقل
 
-## تماس و پشتیبانی
+```bash
+cd backend/public
+php -S localhost:8000
+```
 
-- وب‌سایت: https://bsearch.ir
-- ایمیل: support@bsearch.ir
-- تلگرام: @bsearch_support
+### اجرای AI Service به صورت مستقل
+
+```bash
+cd ai_service
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8001
+```
+
+## 📝 لایسنس
+
+این پروژه تحت لایسنس MIT منتشر شده است.
 
 ---
 
-© ۱۴۰۳ BSearch - موتور جستجوی هوشمند ایرانی
+**BSearch** - ساخته شده با ❤️ برای جامعه فارسی‌زبان
